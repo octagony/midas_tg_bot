@@ -1,3 +1,4 @@
+import type { TMainCommand } from "../interfaces/commands.interface.js";
 import {
 	GLOBAL_STATS_COMMAND,
 	GLOBAL_STATS_TEXT,
@@ -9,7 +10,7 @@ import {
 	TRENDING_COIN_TEXT,
 } from "./constants.js";
 
-export const buttonToCommand = {
+export const buttonToCommand: TMainCommand = {
 	[PRICE_COIN_TEXT]: PRICE_COIN_COMMAND,
 	[PRICE_TOP_TEXT]: PRICE_TOP_COMMAND,
 	[TRENDING_COIN_TEXT]: TRENDING_COIN_COMMAND,
