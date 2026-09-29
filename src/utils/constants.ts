@@ -10,4 +10,6 @@ export const PRICE_TOP_COMMAND = "/top";
 export const TRENDING_COIN_COMMAND = "/trending";
 export const GLOBAL_STATS_COMMAND = "/global";
 
+export const TRENDING_SEARCH_REQUEST_URL = "/search/trending";
+
 export const COINGECKO_API_URL = "https://api.coingecko.com/api/v3/";

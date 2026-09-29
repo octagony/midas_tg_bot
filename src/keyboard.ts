@@ -16,6 +16,7 @@ export const setupBasicKeyboard = async (ctx: CommandContext<Context>) => {
 		.row()
 		.text(GLOBAL_STATS_TEXT)
 		.row();
+
 	await ctx.reply("Choose what you want", {
 		reply_markup: keyboard,
 	});
