@@ -1,16 +1,15 @@
 import axios, { type AxiosInstance, type AxiosResponse } from "axios";
-import {
-	COINGECKO_API_URL,
-	GLOBAL_STATS_COMMAND,
-	TOP_10_SEARCH_REQUEST_URL,
-	TRENDING_SEARCH_REQUEST_URL,
-} from "./constants.js";
+import { COINGECKO_API_URL, GLOBAL_STATS_COMMAND } from "./constants.js";
 import type {
 	IGlobalStatsRequest,
+	IPriceCoinRequest,
 	ITopCoin,
 	ITrendingSearchRequest,
 } from "../interfaces/requests.interface.js";
-import { escapeMarkdown } from "#/utils/helpers.ts";
+import { escapeMarkdown, handlePriceChange } from "#/utils/helpers.ts";
+import { bot } from "#/index.js";
+import type { CommandContext, Context } from "grammy";
+import { type Conversation } from "@grammyjs/conversations";
 
 const apiClient: AxiosInstance = axios.create({
 	baseURL: COINGECKO_API_URL,
@@ -47,9 +46,8 @@ export const handleGlobalRequest = async () => {
 
 export const handleTredingRequest = async () => {
 	try {
-		const response = await apiClient.get<ITrendingSearchRequest>(
-			TRENDING_SEARCH_REQUEST_URL,
-		);
+		const response =
+			await apiClient.get<ITrendingSearchRequest>("/search/trending");
 
 		const data = response.data.coins;
 		let message = "";
@@ -58,7 +56,7 @@ export const handleTredingRequest = async () => {
 			const coin = item.item;
 			message +=
 				`${index + 1}\. ${escapeMarkdown(coin.name)} \(${escapeMarkdown(coin.symbol.toUpperCase())}) \n` +
-				`Market Cap Rank: ${escapeMarkdown(coin.market_cap_rank.toString())} \n` +
+				`💸 Market Cap Rank: ${escapeMarkdown(coin.market_cap_rank.toString())} \n` +
 				`Price BTC: ${escapeMarkdown(coin.price_btc.toLocaleString())}\n`;
 		});
 
@@ -72,13 +70,12 @@ export const handleTredingRequest = async () => {
 export const handleTop10Request = async () => {
 	try {
 		const response = await apiClient.get<ITopCoin[]>(
-			TOP_10_SEARCH_REQUEST_URL,
+			"/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false",
 		);
 		let message = "🔝 Top 10 Cryptocurrencies \n \n";
 
 		response.data.forEach((item, index) => {
-			const priceChange = item.price_change_percentage_24h || 0;
-			const priceChangeIcon = priceChange >= 0 ? "🟢" : "🔴";
+			const { priceChange, priceChangeIcon } = handlePriceChange(item);
 
 			message += `${index + 1}\. ${escapeMarkdown(item.name)} \(${escapeMarkdown(item.symbol.toUpperCase())}\)`;
 			message += `💵 Price: $${escapeMarkdown(item.current_price.toLocaleString())}\n`;
@@ -88,6 +85,55 @@ export const handleTop10Request = async () => {
 		});
 
 		return message;
+	} catch (error) {
+		console.error(error);
+		return "Oh no, something went wrong";
+	}
+};
+
+export const handlePriceRequest = async (
+	conversation: Conversation,
+	ctx: CommandContext<Context>,
+) => {
+	await bot.api.sendMessage(ctx.chatId, "Type coin", {
+		reply_markup: { remove_keyboard: true },
+	});
+
+	const answerCtx = await conversation.waitFor("message:text");
+	ctx.reply(`You said: ${answerCtx.msg.text}`);
+
+	try {
+		const coinResponse = await apiClient.get<IPriceCoinRequest>(
+			`/search?query=${answerCtx.msg.text}`,
+		);
+
+		if (!coinResponse.data.coins || !coinResponse?.data?.coins.at(0)) {
+			return "No coin found";
+		}
+
+		const coinId = coinResponse?.data?.coins.at(0)?.id;
+
+		const specificCoinResponse = await apiClient.get(
+			`/coins/${coinId}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false`,
+		);
+
+		const coinData = specificCoinResponse?.data;
+
+		const { priceChange, priceChangeIcon } = handlePriceChange(coinData);
+
+		const lines = [
+			`💰 ${escapeMarkdown(coinData.name)} \(${escapeMarkdown(coinData.symbol.toUpperCase())}\)`,
+			`🏷️ ${priceChangeIcon} 24h Price: ${priceChange.toFixed(2)}%`,
+			`📈 24h High: $${escapeMarkdown(coinData.market_data.high_24h.usd.toLocaleString())}`,
+			`📉 24h Low: $${escapeMarkdown(coinData.market_data.low_24h.usd.toLocaleString())}`,
+			`🔷 Market Cap: $${escapeMarkdown(coinData.market_data.market_cap.usd.toLocaleString())}`,
+			`💸 Market Cap Rank: #${coinData.market_cap_rank}`,
+			`📊 Volume: $${escapeMarkdown(coinData.market_data.total_volume.usd.toLocaleString())}`,
+		];
+
+		const message = lines.join("\n");
+
+		await bot.api.sendMessage(ctx.chatId, message);
 	} catch (error) {
 		console.error(error);
 		return "Oh no, something went wrong";
