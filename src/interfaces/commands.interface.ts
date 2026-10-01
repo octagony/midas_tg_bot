@@ -1,3 +1,3 @@
 export type TMainCommand = {
-	[key: string]: string;
+  [key: string]: string;
 };

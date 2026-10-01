@@ -1,4 +1,4 @@
 export interface IHandlePriceChange {
-	priceChange: number;
-	priceChangeIcon: string;
+  priceChange: number;
+  priceChangeIcon: string;
 }
