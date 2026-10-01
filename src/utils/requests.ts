@@ -10,6 +10,7 @@ import { escapeMarkdown, handlePriceChange } from "#/utils/helpers.ts";
 import { bot } from "#/index.js";
 import type { CommandContext, Context } from "grammy";
 import { type Conversation } from "@grammyjs/conversations";
+import { setupBasicKeyboard } from "#/keyboard.js";
 
 const apiClient: AxiosInstance = axios.create({
 	baseURL: COINGECKO_API_URL,
@@ -30,7 +31,7 @@ export const handleGlobalRequest = async () => {
 		const lines = [
 			`${data?.total_market_cap?.usd ? `🌐 Global Market Stats: ${escapeMarkdown(data.total_market_cap.usd.toLocaleString())}` : ""}`,
 			`${data?.total_volume?.usd ? `🕛 24h Volume: ${escapeMarkdown(data.total_volume.usd.toLocaleString())}` : ""}`,
-			`${data?.market_cap_percentage?.btc ? `🟩 BTC Dominance: ${escapeMarkdown(data.market_cap_percentage.btc.toFixed(2))}%` : ""}`,
+			`${data?.market_cap_percentage?.btc ? `🟩 BTC Dominance: ${escapeMarkdown(data.market_cap_percentage.btc.toFixed(2))}\\%` : ""}`,
 			`${data?.active_cryptocurrencies ? `📈 Active Cryptocurrencies: ${escapeMarkdown(data.active_cryptocurrencies.toString())}` : ""}`,
 			`${data?.markets ? `🏛️ Markets: ${escapeMarkdown(data.markets.toString())}` : ""}`,
 		];
@@ -39,8 +40,8 @@ export const handleGlobalRequest = async () => {
 
 		return message;
 	} catch (error) {
-		console.error(error);
-		return "Oh no, something went wrong";
+		console.error("Error fetching global market stats:", error);
+		return "❌ Failed to fetch global market stats\\. Please try again later\\.";
 	}
 };
 
@@ -55,15 +56,15 @@ export const handleTredingRequest = async () => {
 		data.forEach((item, index) => {
 			const coin = item.item;
 			message +=
-				`${index + 1}\. ${escapeMarkdown(coin.name)} \(${escapeMarkdown(coin.symbol.toUpperCase())}) \n` +
-				`💸 Market Cap Rank: ${escapeMarkdown(coin.market_cap_rank.toString())} \n` +
-				`Price BTC: ${escapeMarkdown(coin.price_btc.toLocaleString())}\n`;
+				`🔸${index + 1}\\. ${escapeMarkdown(coin.name)} \\(${escapeMarkdown(coin.symbol.toUpperCase())}\\) \n` +
+				`💸 Market Cap Rank: \\#${escapeMarkdown(coin.market_cap_rank.toString())} \n` +
+				`💵 Price BTC: ${escapeMarkdown(coin.price_btc.toLocaleString())}\n\n`;
 		});
 
 		return message;
 	} catch (error) {
-		console.error(error);
-		return "Oh no, something went wrong";
+		console.error("Error fetching trending coins:", error);
+		return "❌ Failed to fetch trending coins\\. Please try again later\\.";
 	}
 };
 
@@ -77,17 +78,17 @@ export const handleTop10Request = async () => {
 		response.data.forEach((item, index) => {
 			const { priceChange, priceChangeIcon } = handlePriceChange(item);
 
-			message += `${index + 1}\. ${escapeMarkdown(item.name)} \(${escapeMarkdown(item.symbol.toUpperCase())}\)`;
+			message += `${index + 1}\\. ${escapeMarkdown(item.name)} \\(${escapeMarkdown(item.symbol.toUpperCase())}\\)`;
 			message += `💵 Price: $${escapeMarkdown(item.current_price.toLocaleString())}\n`;
-			message += `💰 Price Change: ${priceChangeIcon} ${escapeMarkdown(priceChange.toFixed(2))}\n`;
+			message += `💰 Price Change: ${priceChangeIcon} ${escapeMarkdown(priceChange.toFixed(2))}\\%\n`;
 			message += `🔷 Market Cap: ${escapeMarkdown(item.market_cap.toLocaleString())}\n`;
 			message += `📊 Volume: ${escapeMarkdown(item.total_volume.toLocaleString())}\n \n`;
 		});
 
 		return message;
 	} catch (error) {
-		console.error(error);
-		return "Oh no, something went wrong";
+		console.error("Error fetching top 10 coins:", error);
+		return "❌ Failed to fetch top 10 coins\\. Please try again later\\.";
 	}
 };
 
@@ -100,7 +101,6 @@ export const handlePriceRequest = async (
 	});
 
 	const answerCtx = await conversation.waitFor("message:text");
-	ctx.reply(`You said: ${answerCtx.msg.text}`);
 
 	try {
 		const coinResponse = await apiClient.get<IPriceCoinRequest>(
@@ -134,8 +134,13 @@ export const handlePriceRequest = async (
 		const message = lines.join("\n");
 
 		await bot.api.sendMessage(ctx.chatId, message);
+
+		const basicKeyboard = await setupBasicKeyboard();
+		await ctx.reply("Choose what you want", {
+			reply_markup: basicKeyboard,
+		});
 	} catch (error) {
-		console.error(error);
-		return "Oh no, something went wrong";
+		console.error("Error fetching coin data:", error);
+		return "❌ Failed to fetch coin data\\. Please try again later\\.";
 	}
 };

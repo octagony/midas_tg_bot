@@ -6,8 +6,8 @@ import {
 	TRENDING_COIN_TEXT,
 } from "./utils/constants.js";
 
-export const setupBasicKeyboard = async (ctx: CommandContext<Context>) => {
-	const keyboard = new Keyboard()
+export const setupBasicKeyboard = async () => {
+	const basicKeyboard = new Keyboard()
 		.text(PRICE_COIN_TEXT)
 		.row()
 		.text(PRICE_TOP_TEXT)
@@ -17,7 +17,5 @@ export const setupBasicKeyboard = async (ctx: CommandContext<Context>) => {
 		.text(GLOBAL_STATS_TEXT)
 		.row();
 
-	await ctx.reply("Choose what you want", {
-		reply_markup: keyboard,
-	});
+	return basicKeyboard;
 };

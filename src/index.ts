@@ -1,4 +1,4 @@
-import { Bot, Context, Keyboard, session } from "grammy";
+import { Bot, Context, Keyboard, session, type CommandContext } from "grammy";
 import { setupBasicKeyboard } from "./keyboard.js";
 import { buttonToCommand } from "./utils/commands.js";
 import {
@@ -23,12 +23,16 @@ import {
 export const bot = new Bot<ConversationFlavor<Context>>(
 	process.env.TELEGRAM_BOT_TOKEN!,
 );
-bot.use(session({ initial: () => ({}) }));
+
 bot.use(conversations());
 
 bot.command("start", async (ctx) => {
 	ctx.reply(START_TEXT);
-	await setupBasicKeyboard(ctx);
+	const basicKeyboard = await setupBasicKeyboard();
+
+	await ctx.reply("Choose what you want", {
+		reply_markup: basicKeyboard,
+	});
 });
 
 bot.use(createConversation(handlePriceRequest));
@@ -45,28 +49,32 @@ bot.on("message:text", async (ctx) => {
 	const answer = buttonToCommand[ctx.msg.text] ?? ctx.msg.text;
 	let message: string;
 
-	console.log(answer);
-
 	switch (answer) {
 		case GLOBAL_STATS_COMMAND:
 			message = (await handleGlobalRequest()) ?? "";
+			bot.api.sendMessage(ctx.chatId, message, {
+				parse_mode: "MarkdownV2",
+			});
 			break;
 		case TRENDING_COIN_COMMAND:
 			message = (await handleTredingRequest()) ?? "";
+			bot.api.sendMessage(ctx.chatId, message, {
+				parse_mode: "MarkdownV2",
+			});
 			break;
 		case TOP_10_COINS_COMMAND:
 			message = (await handleTop10Request()) ?? "";
+			bot.api.sendMessage(ctx.chatId, message, {
+				parse_mode: "MarkdownV2",
+			});
 			break;
 		case PRICE_COIN_COMMAND:
 			await ctx.conversation.enter("handlePriceRequest");
-			message = "inside switch";
 			break;
 		default:
 			message = "inside default";
 			break;
 	}
-
-	bot.api.sendMessage(ctx.chatId, message);
 });
 
 bot.start();

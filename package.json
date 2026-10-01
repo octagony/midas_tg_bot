@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "tsx --watch --env-file .env src/index.ts",
 		"start": "node --env-file .env dist/index.js",
-		"build": "tsc --outDir dist"
+		"build": "tsc"
 	},
 	"devDependencies": {
 		"@types/node": "^26.6.3",
