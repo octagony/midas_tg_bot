@@ -27,10 +27,9 @@ export const bot = new Bot<ConversationFlavor<Context>>(
 bot.use(conversations());
 
 bot.command("start", async (ctx) => {
-	ctx.reply(START_TEXT);
 	const basicKeyboard = await setupBasicKeyboard();
 
-	await ctx.reply("Choose what you want", {
+	await ctx.reply(`${START_TEXT}`, {
 		reply_markup: basicKeyboard,
 	});
 });
@@ -72,7 +71,7 @@ bot.on("message:text", async (ctx) => {
 			await ctx.conversation.enter("handlePriceRequest");
 			break;
 		default:
-			message = "inside default";
+			message = "Unknown message";
 			break;
 	}
 });

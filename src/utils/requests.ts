@@ -136,7 +136,7 @@ export const handlePriceRequest = async (
 		await bot.api.sendMessage(ctx.chatId, message);
 
 		const basicKeyboard = await setupBasicKeyboard();
-		await ctx.reply("Choose what you want", {
+		await ctx.reply("⬇️ Choose what you want", {
 			reply_markup: basicKeyboard,
 		});
 	} catch (error) {

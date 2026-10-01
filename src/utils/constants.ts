@@ -1,4 +1,4 @@
-export const START_TEXT = "Welcome to Midas Bot! 🚀";
+export const START_TEXT = "	🚀Welcome to Midas Bot! \n\n⬇️Choose what you want";
 
 export const PRICE_COIN_TEXT = "Get price for a specific coin";
 export const PRICE_TOP_TEXT = "Get top 10 cryptocurrencies by market cap";
