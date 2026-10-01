@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "paths": { "#/*": ["./src/*"] },
+    "module": "nodenext",
+    "target": "esnext",
+    "types": ["node"],
+    "strict": true,
+    "verbatimModuleSyntax": false,
+    "isolatedModules": false,
+    "moduleDetection": "force",
+    "skipLibCheck": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    "allowImportingTsExtensions": false,
+    "noEmit": false
+  },
+  "exclude": ["src/**/*.test.ts", "src/**/*.spec.ts"]
+}
