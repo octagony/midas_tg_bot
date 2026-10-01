@@ -1,13 +1,13 @@
-import axios, { type AxiosInstance, type AxiosResponse } from "axios";
+import axios, { type AxiosInstance } from "axios";
 import { COINGECKO_API_URL, GLOBAL_STATS_COMMAND } from "./constants.js";
 import type {
 	IGlobalStatsRequest,
 	IPriceCoinRequest,
 	ITopCoin,
 	ITrendingSearchRequest,
-} from "../interfaces/requests.interface.js";
+} from "#/interfaces/requests.interface.js";
 import { escapeMarkdown, handlePriceChange } from "#/utils/helpers.ts";
-import { bot } from "#/index.js";
+import { bot } from "#/index.ts";
 import type { CommandContext, Context } from "grammy";
 import { type Conversation } from "@grammyjs/conversations";
 import { setupBasicKeyboard } from "#/keyboard.js";
@@ -94,8 +94,12 @@ export const handleTop10Request = async () => {
 
 export const handlePriceRequest = async (
 	conversation: Conversation,
-	ctx: CommandContext<Context>,
+	ctx: Context,
 ) => {
+	if (!ctx.chatId) {
+		return "❌ Chat ID is not available";
+	}
+
 	await bot.api.sendMessage(ctx.chatId, "Type coin", {
 		reply_markup: { remove_keyboard: true },
 	});
