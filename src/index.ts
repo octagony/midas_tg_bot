@@ -1,19 +1,19 @@
 import { Bot, Context, Keyboard, session, type CommandContext } from "grammy";
-import { setupBasicKeyboard } from "./keyboard.js";
-import { buttonToCommand } from "./utils/commands.js";
+import { setupBasicKeyboard } from "#/utils/keyboard.ts";
+import { buttonToCommand } from "#/utils/commands.ts";
 import {
 	GLOBAL_STATS_COMMAND,
 	PRICE_COIN_COMMAND,
 	START_TEXT,
 	TOP_10_COINS_COMMAND,
 	TRENDING_COIN_COMMAND,
-} from "./utils/constants.js";
+} from "#/utils/constants.ts";
 import {
 	handleGlobalRequest,
 	handlePriceRequest,
 	handleTop10Request,
 	handleTredingRequest,
-} from "./utils/requests.js";
+} from "#/utils/requests.ts";
 import {
 	conversations,
 	createConversation,

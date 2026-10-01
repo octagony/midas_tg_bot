@@ -1,4 +1,4 @@
-import type { TMainCommand } from "../interfaces/commands.interface.js";
+import type { TMainCommand } from "#/interfaces/commands.interface.js";
 import {
 	GLOBAL_STATS_COMMAND,
 	GLOBAL_STATS_TEXT,

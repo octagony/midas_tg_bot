@@ -4,7 +4,7 @@ import {
 	PRICE_COIN_TEXT,
 	PRICE_TOP_TEXT,
 	TRENDING_COIN_TEXT,
-} from "./utils/constants.js";
+} from "./constants.ts";
 
 export const setupBasicKeyboard = async () => {
 	const basicKeyboard = new Keyboard()

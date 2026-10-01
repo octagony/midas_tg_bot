@@ -1,5 +1,5 @@
 import axios, { type AxiosInstance } from "axios";
-import { COINGECKO_API_URL, GLOBAL_STATS_COMMAND } from "./constants.js";
+import { COINGECKO_API_URL, GLOBAL_STATS_COMMAND } from "#/utils/constants.ts";
 import type {
 	IGlobalStatsRequest,
 	IPriceCoinRequest,
@@ -8,9 +8,9 @@ import type {
 } from "#/interfaces/requests.interface.js";
 import { escapeMarkdown, handlePriceChange } from "#/utils/helpers.ts";
 import { bot } from "#/index.ts";
-import type { CommandContext, Context } from "grammy";
+import type { Context } from "grammy";
 import { type Conversation } from "@grammyjs/conversations";
-import { setupBasicKeyboard } from "#/keyboard.js";
+import { setupBasicKeyboard } from "#/utils/keyboard.ts";
 
 const apiClient: AxiosInstance = axios.create({
 	baseURL: COINGECKO_API_URL,
